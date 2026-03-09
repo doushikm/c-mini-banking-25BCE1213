@@ -1,7 +1,7 @@
 /*
  * Project Title: Mini Banking System with Transaction Log
  * Student Name:  [Your Name]
- * Register No:   [Your Register Number]
+ * Register No:   25BCE1213
  * Department:    [Your Department]
  * Course Name:   C Programming
  * Faculty:       dinakaran.m@vit.ac.in
@@ -12,8 +12,8 @@
 #include <string.h>
 #include <time.h>
 
-#define ACCOUNTS_FILE  "accounts.dat"
-#define LOG_FILE       "transactions.log"
+#define ACCOUNTS_FILE  "/tmp/accounts.dat"
+#define LOG_FILE       "/tmp/transactions.log"
 #define MAX_NAME       50
 #define MAX_TRANS_SHOW 5
 #define MAX_RECORDS    1000
@@ -44,9 +44,6 @@ void   saveAccount(struct Account acc);
 void   updateAccountBalance(int accNo, double newBalance);
 void   getTimestamp(char *buffer);
 void   displayMenu();
-int    readInt(const char *prompt, int *out);
-int    readDouble(const char *prompt, double *out);
-void   readString(const char *prompt, char *out, int maxLen);
 
 int main() {
     int choice;
@@ -55,7 +52,8 @@ int main() {
     printf(  "+======================================+\n");
     do {
         displayMenu();
-        if (!readInt("Enter your choice: ", &choice)) { choice = -1; continue; }
+        printf("Enter your choice: ");
+        scanf("%d", &choice);
         switch (choice) {
             case 1: createAccount();        break;
             case 2: deposit();              break;
@@ -65,7 +63,7 @@ int main() {
             case 6: viewLastTransactions(); break;
             case 7: displayAllAccounts();   break;
             case 0: printf("\nGoodbye!\n\n"); break;
-            default: printf("\n[!] Invalid choice. Please enter 0-7.\n");
+            default: printf("\n[!] Invalid choice. Enter 0-7.\n");
         }
     } while (choice != 0);
     return 0;
@@ -89,18 +87,25 @@ void displayMenu() {
 void createAccount() {
     struct Account acc;
     printf("\n--- Create New Account ---\n");
-    if (!readInt("Enter Account Number (4-8 digits): ", &acc.accNo)) return;
+
+    printf("Enter Account Number (4-8 digits): ");
+    scanf("%d", &acc.accNo);
     if (acc.accNo < 1000 || acc.accNo > 99999999) {
-        printf("[!] Invalid account number. Must be 4-8 digits.\n"); return;
+        printf("[!] Invalid account number.\n"); return;
     }
     struct Account tmp;
     if (accountExists(acc.accNo, &tmp)) {
         printf("[!] Account %d already exists!\n", acc.accNo); return;
     }
-    readString("Enter Account Holder Name: ", acc.name, MAX_NAME);
+
+    printf("Enter Account Holder Name: ");
+    scanf(" %49[^\n]", acc.name);
     if (strlen(acc.name) == 0) { printf("[!] Name cannot be empty.\n"); return; }
-    if (!readDouble("Enter Initial Deposit (min Rs.500): ", &acc.balance)) return;
-    if (acc.balance < 500) { printf("[!] Minimum initial deposit is Rs.500.\n"); return; }
+
+    printf("Enter Initial Deposit (min Rs.500): ");
+    scanf("%lf", &acc.balance);
+    if (acc.balance < 500) { printf("[!] Minimum deposit is Rs.500.\n"); return; }
+
     saveAccount(acc);
     logTransaction(acc.accNo, "CREATE", acc.balance);
     printf("\n[OK] Account created! No:%d  Name:%s  Balance:Rs.%.2f\n",
@@ -110,11 +115,11 @@ void createAccount() {
 void deposit() {
     int accNo; double amount; struct Account acc;
     printf("\n--- Deposit ---\n");
-    if (!readInt("Enter Account Number: ", &accNo)) return;
+    printf("Enter Account Number: "); scanf("%d", &accNo);
     if (!accountExists(accNo, &acc)) { printf("[!] Account not found.\n"); return; }
-    if (!readDouble("Enter deposit amount: ", &amount)) return;
+    printf("Enter deposit amount: "); scanf("%lf", &amount);
     if (amount <= 0) { printf("[!] Amount must be positive.\n"); return; }
-    if (amount > 1000000) { printf("[!] Exceeds single transaction limit.\n"); return; }
+    if (amount > 1000000) { printf("[!] Exceeds transaction limit.\n"); return; }
     acc.balance += amount;
     updateAccountBalance(acc.accNo, acc.balance);
     logTransaction(acc.accNo, "DEPOSIT", amount);
@@ -124,15 +129,15 @@ void deposit() {
 void withdraw() {
     int accNo; double amount; struct Account acc;
     printf("\n--- Withdraw ---\n");
-    if (!readInt("Enter Account Number: ", &accNo)) return;
+    printf("Enter Account Number: "); scanf("%d", &accNo);
     if (!accountExists(accNo, &acc)) { printf("[!] Account not found.\n"); return; }
-    if (!readDouble("Enter withdrawal amount: ", &amount)) return;
+    printf("Enter withdrawal amount: "); scanf("%lf", &amount);
     if (amount <= 0) { printf("[!] Amount must be positive.\n"); return; }
     if (amount > acc.balance) {
         printf("[!] Insufficient balance! Available: Rs.%.2f\n", acc.balance); return;
     }
     if (acc.balance - amount < 500) {
-        printf("[!] Min balance Rs.500 required. Max withdrawable: Rs.%.2f\n",
+        printf("[!] Min balance Rs.500 required. Max you can withdraw: Rs.%.2f\n",
                acc.balance - 500.0); return;
     }
     acc.balance -= amount;
@@ -144,7 +149,7 @@ void withdraw() {
 void viewAccount() {
     int accNo; struct Account acc;
     printf("\n--- Account Summary ---\n");
-    if (!readInt("Enter Account Number: ", &accNo)) return;
+    printf("Enter Account Number: "); scanf("%d", &accNo);
     if (!accountExists(accNo, &acc)) { printf("[!] Account not found.\n"); return; }
     printf("\n+----------------------------------+\n");
     printf("|         ACCOUNT DETAILS          |\n");
@@ -158,7 +163,7 @@ void viewAccount() {
 void searchAccount() {
     int accNo; struct Account acc;
     printf("\n--- Search Account ---\n");
-    if (!readInt("Enter Account Number to search: ", &accNo)) return;
+    printf("Enter Account Number: "); scanf("%d", &accNo);
     if (!accountExists(accNo, &acc)) {
         printf("[!] No account found: %d\n", accNo); return;
     }
@@ -169,7 +174,7 @@ void searchAccount() {
 void viewLastTransactions() {
     int accNo;
     printf("\n--- Last %d Transactions ---\n", MAX_TRANS_SHOW);
-    if (!readInt("Enter Account Number: ", &accNo)) return;
+    printf("Enter Account Number: "); scanf("%d", &accNo);
     struct Account tmp;
     if (!accountExists(accNo, &tmp)) { printf("[!] Account not found.\n"); return; }
 
@@ -195,7 +200,7 @@ void viewLastTransactions() {
 
 void displayAllAccounts() {
     FILE *fp = fopen(ACCOUNTS_FILE, "r");
-    if (!fp) { printf("[!] No accounts file found.\n"); return; }
+    if (!fp) { printf("[!] No accounts found.\n"); return; }
     struct Account acc; int found = 0;
     printf("\n%-12s %-25s %s\n", "Account No", "Name", "Balance (Rs.)");
     printf("------------------------------------------------------\n");
@@ -253,30 +258,4 @@ void getTimestamp(char *buffer) {
     time_t now = time(NULL);
     struct tm *t = localtime(&now);
     strftime(buffer, 25, "%Y-%m-%d %H:%M:%S", t);
-}
-
-int readInt(const char *prompt, int *out) {
-    char buf[64];
-    printf("%s", prompt); fflush(stdout);
-    if (!fgets(buf, sizeof(buf), stdin)) return 0;
-    if (sscanf(buf, "%d", out) != 1) {
-        printf("[!] Invalid input. Please enter a whole number.\n"); return 0;
-    }
-    return 1;
-}
-
-int readDouble(const char *prompt, double *out) {
-    char buf[64];
-    printf("%s", prompt); fflush(stdout);
-    if (!fgets(buf, sizeof(buf), stdin)) return 0;
-    if (sscanf(buf, "%lf", out) != 1) {
-        printf("[!] Invalid input. Please enter a valid amount.\n"); return 0;
-    }
-    return 1;
-}
-
-void readString(const char *prompt, char *out, int maxLen) {
-    printf("%s", prompt); fflush(stdout);
-    if (!fgets(out, maxLen, stdin)) { out[0] = '\0'; return; }
-    out[strcspn(out, "\n")] = '\0';
 }
