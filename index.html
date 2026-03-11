@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>OOPS Bank — Mini Banking System</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg:        #f5f4f1;
+  --surface:   #fafaf8;
+  --card:      #ffffff;
+  --border:    #e2e0da;
+  --border2:   #cccac3;
+  --ink:       #1a1917;
+  --ink2:      #3d3b36;
+  --muted:     #8a8880;
+  --muted2:    #b8b6b0;
+  --accent:    #1a1917;
+  --gold:      #c4a45a;
+  --gold2:     #e8c97a;
+  --danger:    #c0392b;
+  --success:   #2d6a4f;
+  --mono:      'DM Mono', monospace;
+  --serif:     'Instrument Serif', serif;
+  --sans:      'DM Sans', sans-serif;
+}
+
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--sans);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── Top nav ── */
+nav {
+  background: var(--card);
+  border-bottom: 1px solid var(--border);
+  padding: 0 40px;
+  display: flex;
+  align-items: center;
+  height: 60px;
+  gap: 32px;
+  position: sticky; top: 0; z-index: 50;
+}
+.nav-logo {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none;
+}
+.nav-logo-mark {
+  width: 32px; height: 32px;
+  background: var(--ink);
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  color: var(--gold);
+  font-family: var(--serif);
+  font-size: 1rem;
+  font-style: italic;
+}
+.nav-logo-text {
+  font-family: var(--serif);
+  font-size: 1.15rem;
+  color: var(--ink);
+  letter-spacing: -0.01em;
+}
+.nav-divider { width: 1px; height: 24px; background: var(--border); }
+.nav-label {
+  font-size: 0.75rem;
+  color: var(--muted);
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+.nav-right { margin-left: auto; display: flex; align-items: center; gap: 16px; }
+.nav-time {
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+}
+.nav-badge {
+  display: flex; align-items: center; gap: 6px;
+  background: #f0f8f4;
+  border: 1px solid #b7dfc9;
+  border-radius: 20px;
+  padding: 4px 12px;
+  font-size: 0.72rem;
+  color: var(--success);
+  font-weight: 600;
+  letter-spacing: 0.03em;
+}
+.nav-badge-dot {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--success);
+  animation: blink 3s infinite;
+}
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+
+/* ── Layout ── */
+.layout {
+  display: flex;
+  flex: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  width: 100%;
+  padding: 0 24px;
+  gap: 0;
+}
+
+/* ── Sidebar ── */
+aside {
+  width: 240px;
+  min-width: 240px;
+  padding: 32px 0;
+  border-right: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.aside-section {
+  font-size: 0.65rem;
+  font-weight: 600;
+  color: var(--muted2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  padding: 16px 20px 6px;
+}
+
+.nav-item {
+  display: flex; align-items: center; gap: 12px;
+  padding: 9px 20px;
+  border-radius: 0;
+  border: none;
+  background: transparent;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 0.875rem;
+  font-weight: 400;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: all 0.15s;
+  position: relative;
+}
+.nav-item::before {
+  content: '';
+  position: absolute; left: 0; top: 0; bottom: 0;
+  width: 2px;
+  background: var(--ink);
+  transform: scaleY(0);
+  transition: transform 0.15s;
+}
+.nav-item:hover { color: var(--ink); background: rgba(26,25,23,0.04); }
+.nav-item.active {
+  color: var(--ink);
+  background: rgba(26,25,23,0.06);
+  font-weight: 500;
+}
+.nav-item.active::before { transform: scaleY(1); }
+.nav-item .ni-icon {
+  width: 18px; text-align: center;
+  font-size: 0.9rem; opacity: 0.7;
+}
+.nav-item.danger { color: var(--danger); opacity: 0.7; }
+.nav-item.danger:hover { opacity: 1; background: rgba(192,57,43,0.05); }
+.nav-item.danger::before { background: var(--danger); }
+
+.aside-divider { height: 1px; background: var(--border); margin: 10px 20px; }
+
+/* ── Main ── */
+main {
+  flex: 1;
+  padding: 36px 40px;
+  overflow-y: auto;
+}
+
+/* ── Screen system ── */
+.screen { display: none; }
+.screen.active { display: block; animation: fadein 0.2s ease; }
+@keyframes fadein { from{opacity:0;transform:translateY(6px)} to{opacity:1;transform:none} }
+
+/* ── Page header ── */
+.page-head { margin-bottom: 28px; }
+.page-eyebrow {
+  font-size: 0.7rem; font-weight: 600;
+  color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  margin-bottom: 6px;
+}
+.page-title {
+  font-family: var(--serif);
+  font-size: 2rem;
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+}
+.page-sub { font-size: 0.875rem; color: var(--muted); margin-top: 6px; }
+
+/* ── Stats row ── */
+.stats-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 16px; margin-bottom: 28px; }
+.stat-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px 20px;
+}
+.stat-label { font-size: 0.7rem; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: 0.08em; }
+.stat-value {
+  font-family: var(--serif);
+  font-size: 1.8rem;
+  color: var(--ink);
+  margin-top: 4px;
+  letter-spacing: -0.02em;
+}
+.stat-value.gold { color: var(--gold); }
+
+/* ── Menu list ── */
+.menu-section-title {
+  font-size: 0.68rem; font-weight: 600;
+  color: var(--muted2); text-transform: uppercase;
+  letter-spacing: 0.1em; margin: 20px 0 8px;
+}
+.menu-section-title:first-child { margin-top: 0; }
+
+.menu-list { display: flex; flex-direction: column; gap: 4px; }
+.menu-card {
+  display: flex; align-items: center;
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 14px 18px;
+  cursor: pointer;
+  transition: all 0.15s;
+  gap: 16px;
+  text-align: left;
+  width: 100%;
+  font-family: var(--sans);
+}
+.menu-card:hover {
+  border-color: var(--border2);
+  box-shadow: 0 2px 12px rgba(26,25,23,0.06);
+  transform: translateY(-1px);
+}
+.menu-card-num {
+  width: 28px; height: 28px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--mono);
+  font-size: 0.78rem;
+  color: var(--muted);
+  flex-shrink: 0;
+}
+.menu-card-body { flex: 1; }
+.menu-card-title { font-size: 0.9rem; font-weight: 500; color: var(--ink); }
+.menu-card-sub { font-size: 0.75rem; color: var(--muted); margin-top: 1px; }
+.menu-card-arrow { color: var(--muted2); font-size: 1rem; transition: transform 0.15s; }
+.menu-card:hover .menu-card-arrow { transform: translateX(3px); color: var(--ink); }
+.menu-card.danger .menu-card-title { color: var(--danger); }
+.menu-card.danger .menu-card-num { color: var(--danger); border-color: rgba(192,57,43,0.2); }
+.menu-card.danger:hover { border-color: rgba(192,57,43,0.3); }
+
+/* ── Form ── */
+.form-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+.form-card-title {
+  font-size: 0.72rem; font-weight: 600;
+  color: var(--muted); text-transform: uppercase;
+  letter-spacing: 0.1em; margin-bottom: 20px;
+  padding-bottom: 14px; border-bottom: 1px solid var(--border);
+}
+.field { margin-bottom: 16px; }
+.field:last-child { margin-bottom: 0; }
+.field label {
+  display: block;
+  font-size: 0.78rem; font-weight: 500;
+  color: var(--ink2); margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 14px;
+  font-family: var(--sans);
+  font-size: 0.9rem;
+  color: var(--ink);
+  outline: none;
+  transition: all 0.15s;
+}
+.field input:focus {
+  border-color: var(--ink);
+  background: var(--card);
+  box-shadow: 0 0 0 3px rgba(26,25,23,0.06);
+}
+.field input::placeholder { color: var(--muted2); }
+
+/* ── Buttons ── */
+.btn-row { display: flex; gap: 10px; margin-top: 20px; }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 10px 22px; border-radius: 8px; border: none;
+  font-family: var(--sans); font-size: 0.875rem;
+  font-weight: 600; cursor: pointer; transition: all 0.15s;
+}
+.btn-primary {
+  background: var(--ink); color: #fff;
+}
+.btn-primary:hover { background: #2d2c29; box-shadow: 0 4px 14px rgba(26,25,23,0.25); transform: translateY(-1px); }
+.btn-danger { background: var(--danger); color: #fff; }
+.btn-danger:hover { background: #a93226; box-shadow: 0 4px 14px rgba(192,57,43,0.25); transform: translateY(-1px); }
+.btn-ghost {
+  background: transparent; border: 1px solid var(--border);
+  color: var(--muted);
+}
+.btn-ghost:hover { border-color: var(--border2); color: var(--ink); }
+
+/* ── Output ── */
+.out-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; padding: 18px 20px;
+  font-family: var(--mono); font-size: 0.82rem;
+  line-height: 1.9; white-space: pre-wrap;
+  display: none;
+}
+.out-card.show { display: block; animation: fadein 0.15s ease; }
+.out-card.ok { border-left: 3px solid var(--success); color: var(--ink2); }
+.out-card.err { border-left: 3px solid var(--danger); color: var(--danger); }
+
+/* ── Result ── */
+.result-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden; display: none;
+}
+.result-card.show { display: block; animation: fadein 0.15s ease; }
+.result-head {
+  padding: 12px 20px;
+  background: var(--ink); color: #fff;
+  font-size: 0.72rem; font-weight: 600;
+  letter-spacing: 0.1em; text-transform: uppercase;
+}
+.result-row {
+  display: flex; justify-content: space-between; align-items: center;
+  padding: 13px 20px; border-bottom: 1px solid var(--border);
+  font-size: 0.875rem;
+}
+.result-row:last-child { border-bottom: none; }
+.result-row .rk { color: var(--muted); font-size: 0.8rem; }
+.result-row .rv { color: var(--ink); font-weight: 500; }
+.result-row .rv.large {
+  font-family: var(--serif); font-size: 1.4rem;
+  color: var(--ink); letter-spacing: -0.01em;
+}
+
+/* ── Table ── */
+.tbl-outer {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 10px; overflow: hidden;
+}
+table { width: 100%; border-collapse: collapse; font-size: 0.875rem; }
+thead { background: var(--bg); }
+th {
+  padding: 11px 18px; text-align: left;
+  font-size: 0.68rem; font-weight: 600; color: var(--muted);
+  text-transform: uppercase; letter-spacing: 0.1em;
+  border-bottom: 1px solid var(--border);
+}
+td { padding: 13px 18px; border-bottom: 1px solid var(--border); color: var(--ink2); }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(26,25,23,0.02); }
+.td-mono { font-family: var(--mono); font-size: 0.82rem; }
+.empty-row td { text-align: center; color: var(--muted2); padding: 32px; font-size: 0.85rem; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 3px 10px; border-radius: 20px;
+  font-size: 0.7rem; font-weight: 600; letter-spacing: 0.04em;
+}
+.b-create  { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+.b-deposit { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.b-withdraw{ background: #fff1f2; color: #9f1239; border: 1px solid #fecdd3; }
+
+/* ── Overlay ── */
+.overlay {
+  position: fixed; inset: 0;
+  background: rgba(26,25,23,0.5);
+  backdrop-filter: blur(6px);
+  display: none; align-items: center; justify-content: center; z-index: 100;
+}
+.overlay.show { display: flex; animation: fadein 0.2s ease; }
+.dialog {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 14px; padding: 28px; width: 90%; max-width: 380px;
+  box-shadow: 0 24px 64px rgba(26,25,23,0.2);
+}
+.dialog-icon { font-size: 2rem; margin-bottom: 14px; }
+.dialog-title { font-family: var(--serif); font-size: 1.3rem; color: var(--ink); margin-bottom: 8px; }
+.dialog-msg { font-size: 0.875rem; color: var(--muted); line-height: 1.6; margin-bottom: 24px; }
+.dialog-btns { display: flex; gap: 10px; justify-content: flex-end; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: 28px; right: 28px;
+  background: var(--ink); color: #fff;
+  border-radius: 10px; padding: 12px 18px;
+  font-size: 0.82rem; font-weight: 500;
+  display: flex; align-items: center; gap: 10px;
+  box-shadow: 0 8px 28px rgba(26,25,23,0.25);
+  transform: translateY(20px); opacity: 0;
+  transition: all 0.3s cubic-bezier(.34,1.56,.64,1);
+  z-index: 200; pointer-events: none;
+}
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast.t-err { background: var(--danger); }
+.toast.t-ok  { background: #1a3a2a; }
+
+@media(max-width:700px) {
+  .layout { flex-direction: column; }
+  aside { width: 100%; min-width: unset; border-right: none; border-bottom: 1px solid var(--border); padding: 12px 0; flex-direction: row; flex-wrap: wrap; overflow-x: auto; }
+  .aside-section, .aside-divider { display: none; }
+  .nav-item { padding: 8px 14px; white-space: nowrap; }
+  main { padding: 24px 16px; }
+  .stats-row { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Toast -->
+<div class="toast" id="toast"><span id="t-icon"></span><span id="t-msg"></span></div>
+
+<!-- Confirm dialog -->
+<div class="overlay" id="overlay">
+  <div class="dialog">
+    <div class="dialog-icon">⚠️</div>
+    <div class="dialog-title" id="cf-title"></div>
+    <div class="dialog-msg"   id="cf-msg"></div>
+    <div class="dialog-btns">
+      <button class="btn btn-ghost" onclick="closeConfirm(false)" style="padding:9px 18px">Cancel</button>
+      <button class="btn btn-danger" onclick="closeConfirm(true)" id="cf-ok" style="padding:9px 18px">Confirm</button>
+    </div>
+  </div>
+</div>
+
+<!-- Nav -->
+<nav>
+  <div class="nav-logo">
+    <div class="nav-logo-mark">N</div>
+    <span class="nav-logo-text">OOPS Bank</span>
+  </div>
+  <div class="nav-divider"></div>
+  <span class="nav-label">Mini Banking System</span>
+  <div class="nav-right">
+    <span class="nav-time" id="clock"></span>
+    <div class="nav-badge"><div class="nav-badge-dot"></div>System Online</div>
+  </div>
+</nav>
+
+<div class="layout">
+
+  <!-- Sidebar -->
+  <aside>
+    <div class="aside-section">Accounts</div>
+    <button class="nav-item active" onclick="go('s-menu', this)">
+      <span class="ni-icon">⊞</span> Overview
+    </button>
+    <button class="nav-item" onclick="go('s-create', this)">
+      <span class="ni-icon">+</span> Create Account
+    </button>
+    <button class="nav-item" onclick="go('s-search', this)">
+      <span class="ni-icon">○</span> Search
+    </button>
+    <button class="nav-item" onclick="go('s-view', this)">
+      <span class="ni-icon">◻</span> Summary
+    </button>
+    <button class="nav-item" onclick="go('s-all', this)">
+      <span class="ni-icon">≡</span> All Accounts
+    </button>
+
+    <div class="aside-divider"></div>
+    <div class="aside-section">Transactions</div>
+    <button class="nav-item" onclick="go('s-deposit', this)">
+      <span class="ni-icon">↓</span> Deposit
+    </button>
+    <button class="nav-item" onclick="go('s-withdraw', this)">
+      <span class="ni-icon">↑</span> Withdraw
+    </button>
+    <button class="nav-item" onclick="go('s-txns', this)">
+      <span class="ni-icon">⊙</span> History
+    </button>
+
+    <div class="aside-divider"></div>
+    <button class="nav-item danger" onclick="exitApp()">
+      <span class="ni-icon">×</span> Exit
+    </button>
+  </aside>
+
+  <!-- Main -->
+  <main>
+
+    <!-- OVERVIEW / MENU -->
+    <div class="screen active" id="s-menu">
+      <div class="page-head">
+        <div class="page-eyebrow">Dashboard</div>
+        <div class="page-title">Good day.</div>
+        <div class="page-sub">Mini Banking System — C Programming DA1 · </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-card">
+          <div class="stat-label">Total Accounts</div>
+          <div class="stat-value" id="st-acc">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total Balance</div>
+          <div class="stat-value gold" id="st-bal">₹0</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Transactions</div>
+          <div class="stat-value" id="st-txn">0</div>
+        </div>
+      </div>
+
+      <div class="menu-section-title">Account Operations</div>
+      <div class="menu-list">
+        <button class="menu-card" onclick="go('s-create', null)">
+          <div class="menu-card-num">1</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Create Account</div>
+            <div class="menu-card-sub">Open a new bank account</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+        <button class="menu-card" onclick="go('s-search', null)">
+          <div class="menu-card-num">2</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Search Account</div>
+            <div class="menu-card-sub">Find account by number</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+        <button class="menu-card" onclick="go('s-view', null)">
+          <div class="menu-card-num">3</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">View Account Summary</div>
+            <div class="menu-card-sub">Check balance and details</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+        <button class="menu-card" onclick="go('s-all', null)">
+          <div class="menu-card-num">4</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Display All Accounts</div>
+            <div class="menu-card-sub">View complete account registry</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+      </div>
+
+      <div class="menu-section-title">Transactions</div>
+      <div class="menu-list">
+        <button class="menu-card" onclick="go('s-deposit', null)">
+          <div class="menu-card-num">5</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Deposit</div>
+            <div class="menu-card-sub">Add funds to an account</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+        <button class="menu-card" onclick="go('s-withdraw', null)">
+          <div class="menu-card-num">6</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Withdraw</div>
+            <div class="menu-card-sub">Remove funds from an account</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+        <button class="menu-card" onclick="go('s-txns', null)">
+          <div class="menu-card-num">7</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Last 5 Transactions</div>
+            <div class="menu-card-sub">View recent transaction history</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+      </div>
+
+      <div class="menu-section-title">System</div>
+      <div class="menu-list">
+        <button class="menu-card danger" onclick="exitApp()">
+          <div class="menu-card-num">0</div>
+          <div class="menu-card-body">
+            <div class="menu-card-title">Exit</div>
+            <div class="menu-card-sub">End the session</div>
+          </div>
+          <span class="menu-card-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- CREATE -->
+    <div class="screen" id="s-create">
+      <div class="page-head">
+        <div class="page-eyebrow">Account Operations</div>
+        <div class="page-title">Create Account</div>
+        <div class="page-sub">Open a new bank account with an initial deposit</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Account Information</div>
+        <div class="field"><label>Account Number</label><input id="c-no" type="number" placeholder="4–8 digit number (e.g. 1001)"/></div>
+        <div class="field"><label>Account Holder Name</label><input id="c-nm" type="text" placeholder="Full name"/></div>
+        <div class="field"><label>Initial Deposit (minimum Rs. 500)</label><input id="c-bl" type="number" placeholder="e.g. 2000"/></div>
+        <div class="btn-row">
+          <button class="btn btn-primary" onclick="doCreate()">Create Account</button>
+          <button class="btn btn-ghost" onclick="clearF(['c-no','c-nm','c-bl']);hide('c-out')">Clear</button>
+        </div>
+      </div>
+      <div class="out-card" id="c-out"></div>
+    </div>
+
+    <!-- SEARCH -->
+    <div class="screen" id="s-search">
+      <div class="page-head">
+        <div class="page-eyebrow">Account Operations</div>
+        <div class="page-title">Search Account</div>
+        <div class="page-sub">Locate an account by its account number</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Search Parameters</div>
+        <div class="field"><label>Account Number</label><input id="sr-no" type="number" placeholder="Enter account number"/></div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="doSearch()">Search</button></div>
+      </div>
+      <div class="result-card" id="sr-card">
+        <div class="result-head">Account Found</div>
+        <div class="result-row"><span class="rk">Account No.</span><span class="rv td-mono" id="sr-an"></span></div>
+        <div class="result-row"><span class="rk">Name</span><span class="rv" id="sr-nm"></span></div>
+        <div class="result-row"><span class="rk">Balance</span><span class="rv large" id="sr-bl"></span></div>
+      </div>
+      <div class="out-card" id="sr-out"></div>
+    </div>
+
+    <!-- VIEW -->
+    <div class="screen" id="s-view">
+      <div class="page-head">
+        <div class="page-eyebrow">Account Operations</div>
+        <div class="page-title">Account Summary</div>
+        <div class="page-sub">View full details for a specific account</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Account Lookup</div>
+        <div class="field"><label>Account Number</label><input id="v-no" type="number" placeholder="Enter account number"/></div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="doView()">View Summary</button></div>
+      </div>
+      <div class="result-card" id="v-card">
+        <div class="result-head">Account Summary</div>
+        <div class="result-row"><span class="rk">Account No.</span><span class="rv td-mono" id="v-an"></span></div>
+        <div class="result-row"><span class="rk">Name</span><span class="rv" id="v-nm"></span></div>
+        <div class="result-row"><span class="rk">Balance</span><span class="rv large" id="v-bl"></span></div>
+      </div>
+      <div class="out-card" id="v-out"></div>
+    </div>
+
+    <!-- ALL ACCOUNTS -->
+    <div class="screen" id="s-all">
+      <div class="page-head">
+        <div class="page-eyebrow">Account Operations</div>
+        <div class="page-title">All Accounts</div>
+        <div class="page-sub">Complete account registry</div>
+      </div>
+      <div class="tbl-outer">
+        <table>
+          <thead><tr><th>Account No.</th><th>Name</th><th>Balance (Rs.)</th></tr></thead>
+          <tbody id="all-tb"><tr class="empty-row"><td colspan="3">No accounts found. Create one to get started.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- DEPOSIT -->
+    <div class="screen" id="s-deposit">
+      <div class="page-head">
+        <div class="page-eyebrow">Transactions</div>
+        <div class="page-title">Deposit</div>
+        <div class="page-sub">Credit funds to an existing account</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Transaction Details</div>
+        <div class="field"><label>Account Number</label><input id="d-no" type="number" placeholder="Enter account number"/></div>
+        <div class="field"><label>Amount (Rs.)</label><input id="d-am" type="number" placeholder="Amount to deposit"/></div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="doDeposit()">Confirm Deposit</button></div>
+      </div>
+      <div class="out-card" id="d-out"></div>
+    </div>
+
+    <!-- WITHDRAW -->
+    <div class="screen" id="s-withdraw">
+      <div class="page-head">
+        <div class="page-eyebrow">Transactions</div>
+        <div class="page-title">Withdraw</div>
+        <div class="page-sub">Debit funds from an existing account</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Transaction Details</div>
+        <div class="field"><label>Account Number</label><input id="w-no" type="number" placeholder="Enter account number"/></div>
+        <div class="field"><label>Amount (Rs.)</label><input id="w-am" type="number" placeholder="Amount to withdraw"/></div>
+        <div class="btn-row"><button class="btn btn-danger" onclick="confirmWithdraw()">Confirm Withdrawal</button></div>
+      </div>
+      <div class="out-card" id="w-out"></div>
+    </div>
+
+    <!-- TRANSACTIONS -->
+    <div class="screen" id="s-txns">
+      <div class="page-head">
+        <div class="page-eyebrow">Transactions</div>
+        <div class="page-title">Transaction History</div>
+        <div class="page-sub">View the last 5 transactions for an account</div>
+      </div>
+      <div class="form-card">
+        <div class="form-card-title">Account Lookup</div>
+        <div class="field"><label>Account Number</label><input id="t-no" type="number" placeholder="Enter account number"/></div>
+        <div class="btn-row"><button class="btn btn-primary" onclick="doTxns()">Load History</button></div>
+      </div>
+      <div class="tbl-outer" id="t-wrap" style="display:none">
+        <table>
+          <thead><tr><th>Type</th><th>Amount (Rs.)</th><th>Timestamp</th></tr></thead>
+          <tbody id="t-tb"></tbody>
+        </table>
+      </div>
+      <div class="out-card" id="t-out"></div>
+    </div>
+
+  </main>
+</div>
+
+<script>
+const DB = { accounts: [], transactions: [] };
+
+function ts() {
+  const d = new Date();
+  return d.toLocaleDateString('en-IN',{day:'2-digit',month:'2-digit',year:'numeric'})
+    + ' ' + d.toLocaleTimeString('en-IN',{hour12:false});
+}
+
+// ── Nav ──
+let curScreen = 's-menu';
+let curNavBtn = document.querySelector('.nav-item.active');
+
+function go(id, btn) {
+  document.getElementById(curScreen).classList.remove('active');
+  curScreen = id;
+  document.getElementById(curScreen).classList.add('active');
+  if (curNavBtn) curNavBtn.classList.remove('active');
+  if (btn) { btn.classList.add('active'); curNavBtn = btn; }
+  if (id === 's-all') renderAll();
+  if (id === 's-menu') updateStats();
+}
+
+function exitApp() {
+  showConfirm('End Session', 'Are you sure you want to exit OOPS Bank?', () => {
+    document.querySelector('main').innerHTML =
+      `<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;height:60vh;gap:16px;color:var(--muted)">
+        <div style="font-family:var(--serif);font-size:2.5rem;color:var(--ink)">Thank you.</div>
+        <div style="font-size:0.875rem">Your session has ended.</div>
+        <button onclick="location.reload()" class="btn btn-ghost" style="margin-top:8px;padding:10px 24px">Restart Session</button>
+      </div>`;
+  }, 'Exit');
+}
+
+// ── Toast ──
+let tTimer;
+function toast(msg, type='ok') {
+  const el=document.getElementById('toast');
+  document.getElementById('t-msg').textContent=msg;
+  document.getElementById('t-icon').textContent=type==='ok'?'✓ ':'✕ ';
+  el.className=`toast show t-${type}`;
+  clearTimeout(tTimer);
+  tTimer=setTimeout(()=>el.classList.remove('show'),3000);
+}
+
+// ── Confirm ──
+let cfCb=null;
+function showConfirm(title,msg,cb,btn='Confirm') {
+  document.getElementById('cf-title').textContent=title;
+  document.getElementById('cf-msg').textContent=msg;
+  document.getElementById('cf-ok').textContent=btn;
+  cfCb=cb;
+  document.getElementById('overlay').classList.add('show');
+}
+function closeConfirm(ok) {
+  document.getElementById('overlay').classList.remove('show');
+  if(ok&&cfCb) cfCb(); cfCb=null;
+}
+
+// ── Helpers ──
+function out(id,msg,type='ok'){const el=document.getElementById(id);el.textContent=msg;el.className=`out-card show ${type}`;}
+function hide(id){document.getElementById(id).className='out-card';}
+function showR(id){document.getElementById(id).className='result-card show';}
+function hideR(id){document.getElementById(id).className='result-card';}
+function clearF(ids){ids.forEach(i=>document.getElementById(i).value='');}
+function find(v){return DB.accounts.find(a=>a.accNo===parseInt(v));}
+
+function updateStats(){
+  document.getElementById('st-acc').textContent=DB.accounts.length;
+  const tot=DB.accounts.reduce((s,a)=>s+a.balance,0);
+  document.getElementById('st-bal').textContent=DB.accounts.length?`₹${tot.toLocaleString('en-IN',{maximumFractionDigits:0})}`:'₹0';
+  document.getElementById('st-txn').textContent=DB.transactions.length;
+}
+
+// ── Logic ──
+function doCreate(){
+  const accNo=parseInt(document.getElementById('c-no').value);
+  const name=document.getElementById('c-nm').value.trim();
+  const bal=parseFloat(document.getElementById('c-bl').value);
+  if(!accNo||accNo<1000||accNo>99999999) return out('c-out','Error: Invalid account number. Must be 4–8 digits.','err'),toast('Invalid account number','err');
+  if(find(accNo)) return out('c-out',`Error: Account ${accNo} already exists.`,'err'),toast('Account already exists','err');
+  if(!name) return out('c-out','Error: Name cannot be empty.','err'),toast('Name required','err');
+  if(!bal||bal<500) return out('c-out','Error: Minimum initial deposit is Rs.500.','err'),toast('Min deposit Rs.500','err');
+  DB.accounts.push({accNo,name,balance:bal});
+  DB.transactions.push({accNo,type:'CREATE',amount:bal,timestamp:ts()});
+  updateStats();
+  out('c-out',`Account created successfully.\n\n  Account No.  ${accNo}\n  Name         ${name}\n  Balance      Rs.${bal.toFixed(2)}`);
+  toast('Account created');
+  clearF(['c-no','c-nm','c-bl']);
+}
+
+function doSearch(){
+  const acc=find(document.getElementById('sr-no').value);
+  hideR('sr-card');hide('sr-out');
+  if(!acc) return out('sr-out','Error: No account found with that number.','err'),toast('Not found','err');
+  document.getElementById('sr-an').textContent=acc.accNo;
+  document.getElementById('sr-nm').textContent=acc.name;
+  document.getElementById('sr-bl').textContent=`Rs.${acc.balance.toFixed(2)}`;
+  showR('sr-card'); toast('Account found');
+}
+
+function doView(){
+  const acc=find(document.getElementById('v-no').value);
+  hideR('v-card');hide('v-out');
+  if(!acc) return out('v-out','Error: Account not found.','err'),toast('Not found','err');
+  document.getElementById('v-an').textContent=acc.accNo;
+  document.getElementById('v-nm').textContent=acc.name;
+  document.getElementById('v-bl').textContent=`Rs.${acc.balance.toFixed(2)}`;
+  showR('v-card');
+}
+
+function renderAll(){
+  const tb=document.getElementById('all-tb');
+  tb.innerHTML=DB.accounts.length
+    ?DB.accounts.map(a=>`<tr><td class="td-mono">${a.accNo}</td><td>${a.name}</td><td class="td-mono" style="font-weight:600">Rs.${a.balance.toFixed(2)}</td></tr>`).join('')
+    :'<tr class="empty-row"><td colspan="3">No accounts found.</td></tr>';
+}
+
+function doDeposit(){
+  const acc=find(document.getElementById('d-no').value);
+  const amt=parseFloat(document.getElementById('d-am').value);
+  hide('d-out');
+  if(!acc) return out('d-out','Error: Account not found.','err'),toast('Not found','err');
+  if(!amt||amt<=0) return out('d-out','Error: Amount must be positive.','err'),toast('Invalid amount','err');
+  if(amt>1000000) return out('d-out','Error: Exceeds single transaction limit of Rs.10,00,000.','err'),toast('Exceeds limit','err');
+  acc.balance+=amt;
+  DB.transactions.push({accNo:acc.accNo,type:'DEPOSIT',amount:amt,timestamp:ts()});
+  updateStats();
+  out('d-out',`Deposit successful.\n\n  Account No.  ${acc.accNo}\n  Name         ${acc.name}\n  Deposited    Rs.${amt.toFixed(2)}\n  New Balance  Rs.${acc.balance.toFixed(2)}`);
+  toast(`Deposited Rs.${amt.toFixed(2)}`);
+  document.getElementById('d-am').value='';
+}
+
+function confirmWithdraw(){
+  const acc=find(document.getElementById('w-no').value);
+  const amt=parseFloat(document.getElementById('w-am').value);
+  hide('w-out');
+  if(!acc) return out('w-out','Error: Account not found.','err'),toast('Not found','err');
+  if(!amt||amt<=0) return out('w-out','Error: Amount must be positive.','err'),toast('Invalid amount','err');
+  if(amt>acc.balance) return out('w-out',`Error: Insufficient balance.\nAvailable: Rs.${acc.balance.toFixed(2)}`,'err'),toast('Insufficient balance','err');
+  if(acc.balance-amt<500) return out('w-out',`Error: Minimum balance of Rs.500 must be maintained.\nMaximum withdrawable: Rs.${(acc.balance-500).toFixed(2)}`,'err'),toast('Min balance required','err');
+  showConfirm('Confirm Withdrawal',`Withdraw Rs.${amt.toFixed(2)} from account ${acc.accNo}? Remaining balance will be Rs.${(acc.balance-amt).toFixed(2)}.`,()=>doWithdraw(acc,amt),'Withdraw');
+}
+
+function doWithdraw(acc,amt){
+  acc.balance-=amt;
+  DB.transactions.push({accNo:acc.accNo,type:'WITHDRAW',amount:amt,timestamp:ts()});
+  updateStats();
+  out('w-out',`Withdrawal successful.\n\n  Account No.  ${acc.accNo}\n  Name         ${acc.name}\n  Withdrawn    Rs.${amt.toFixed(2)}\n  New Balance  Rs.${acc.balance.toFixed(2)}`);
+  toast(`Withdrawn Rs.${amt.toFixed(2)}`);
+  document.getElementById('w-am').value='';
+}
+
+function doTxns(){
+  const acc=find(document.getElementById('t-no').value);
+  document.getElementById('t-wrap').style.display='none';
+  document.getElementById('t-out').className='out-card';
+  if(!acc) return out('t-out','Error: Account not found.','err'),toast('Not found','err');
+  const txns=DB.transactions.filter(t=>t.accNo===acc.accNo).slice(-5);
+  if(!txns.length) return out('t-out','No transactions found for this account.','err');
+  document.getElementById('t-tb').innerHTML=txns.map(t=>{
+    const cls=t.type==='DEPOSIT'?'b-deposit':t.type==='WITHDRAW'?'b-withdraw':'b-create';
+    return `<tr><td><span class="badge ${cls}">${t.type}</span></td><td class="td-mono" style="font-weight:600">Rs.${t.amount.toFixed(2)}</td><td class="td-mono" style="color:var(--muted)">${t.timestamp}</td></tr>`;
+  }).join('');
+  document.getElementById('t-wrap').style.display='block';
+  toast('History loaded');
+}
+
+setInterval(()=>{ document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN',{hour12:false}); },1000);
+document.getElementById('clock').textContent=new Date().toLocaleTimeString('en-IN',{hour12:false});
+</script>
+</body>
+</html>
