@@ -3,8 +3,8 @@
 #include <string.h>
 #include <time.h>
 
-#define ACCOUNTS_FILE  "/tmp/accounts.dat"
-#define LOG_FILE       "/tmp/transactions.log"
+#define ACCOUNTS_FILE  "accounts.dat"
+#define LOG_FILE       "transactions.log"
 #define MAX_NAME       50
 #define MAX_TRANS_SHOW 5
 #define MAX_RECORDS    1000
