@@ -1,12 +1,3 @@
-/*
- * Project Title: Mini Banking System with Transaction Log
- * Student Name:  [Your Name]
- * Register No:   25BCE1213
- * Department:    [Your Department]
- * Course Name:   C Programming
- * Faculty:       dinakaran.m@vit.ac.in
- */
-
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
